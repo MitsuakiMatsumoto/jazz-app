@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>jazz</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="no-menu"> <div id="menu-container">
+        <button id="menu-toggle-button">メニュー</button>
+        <nav id="main-menu" class="hidden">
+            <ul class="menu-list">
+                <li id="menu-dashboard"><a href="#" data-screen="dashboard-screen">勉強メニューへ戻る</a></li>
+                <li id="menu-study-order"><a href="#" data-screen="study-order-screen">おすすめの勉強順序</a></li>
+                <li id="menu-scales"><a href="#" data-screen="scales-screen">スケール</a></li>
+                <li id="menu-chords"><a href="#" data-screen="chords-screen">コード</a></li>
+                <li id="menu-settings"><a href="#" data-screen="settings-screen">アカウント設定</a></li>
+                <li id="menu-logout"><a href="#" data-screen="logout">ログアウト</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <main id="common-password-screen" class="screen active">
+        <h1>SSO</h1>
+        <p class="subtitle">部活内共通パスワードを入力してください</p>
+        <form id="common-password-form">
+            <div class="input-group">
+                <label for="common-password">共通パスワード</label>
+                <input type="password" id="common-password" name="common-password" required>
+            </div>
+            <button type="submit">送信</button>
+        </form>
+    </main>
+
+    <main id="selection-screen" class="screen">
+        <h1>SSO</h1>
+        <p class="subtitle">ようこそ！</p>
+        <button class="screen-button login-select">ログイン</button>
+        <button class="screen-button signup-select">初めて利用の方は新規登録</button>
+    </main>
+
+    <main id="login-screen" class="screen">
+        <h1>SSO</h1>
+        <p class="subtitle">ログイン</p>
+        <form id="login-form">
+            <div class="input-group">
+                <label for="login-username">ユーザー名</label>
+                <input type="text" id="login-username" name="login-username" required>
+            </div>
+            <div class="input-group">
+                <label for="login-password">個人パスワード</label>
+                <input type="password" id="login-password" name="login-password" required>
+            </div>
+            <button type="submit">ログイン</button>
+        </form>
+        <p class="back-link"><a href="#" class="back-to-selection">戻る</a></p>
+    </main>
+
+    <main id="signup-screen" class="screen">
+        <h1>SSO</h1>
+        <p class="subtitle">新規登録</p>
+        <form id="signup-form">
+            <div class="input-group">
+                <label for="signup-username">ユーザー名</label>
+                <input type="text" id="signup-username" name="signup-username" required>
+            </div>
+            <div class="input-group">
+                <label for="signup-password">パスワード</label>
+                <input type="password" id="signup-password" name="signup-password" required>
+            </div>
+            <div class="input-group">
+                <label for="signup-password-confirm">パスワード（確認）</label>
+                <input type="password" id="signup-password-confirm" name="signup-password-confirm" required>
+            </div>
+            <div class="input-group">
+                <label for="instrument-key">楽器のキー</label>
+                <select id="instrument-key" name="instrument-key" required>
+                    <option value="">選択してください</option>
+                    <option value="C">C管</option>
+                    <option value="Bb">B♭管</option>
+                    <option value="Eb">E♭管</option>
+                    <option value="other">その他</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label for="instrument-name">楽器名</label>
+                <input type="text" id="instrument-name" name="instrument-name" required>
+            </div>
+            <button type="submit">登録</button>
+        </form>
+        <p class="back-link"><a href="#" data-screen="selection-screen">戻る</a></p>
+    </main>
+
+    <main id="dashboard-screen" class="screen">
+        <h1>SSO</h1>
+        <p class="subtitle">勉強メニュー</p>
+        <div class="menu-items">
+            <button class="menu-item-button" data-screen="study-order-screen">おすすめの勉強順序</button>
+            <button class="menu-item-button" data-screen="scales-screen">スケール</button>
+            <button class="menu-item-button" data-screen="chords-screen">コード</button>
+        </div>
+        <p class="back-link"><a href="#" data-screen="common-password-screen">ログアウト</a></p>
+    </main>
+    
+    <main id="scales-screen" class="screen">
+        <h1>スケール</h1>
+        <p class="subtitle">練習メニュー</p>
+        <div class="menu-items">
+            <button class="menu-item-button" data-screen="scale-list-screen">スケール一覧</button>
+            <button class="menu-item-button" data-screen="scale-practice-screen">練習問題</button>
+        </div>
+        <p class="back-link"><a href="#" data-screen="dashboard-screen">勉強メニューへ戻る</a></p>
+    </main>
+
+    <main id="chords-screen" class="screen">
+        <h1>コード</h1>
+        <p class="subtitle">練習メニュー</p>
+        <div class="menu-items">
+            <button class="menu-item-button" data-screen="chord-list-screen">コード一覧</button>
+            <button class="menu-item-button" data-screen="chord-practice-screen">練習問題</button>
+        </div>
+        <p class="back-link"><a href="#" data-screen="dashboard-screen">勉強メニューへ戻る</a></p>
+    </main>
+    
+    <main id="study-order-screen" class="screen">
+        <h1>おすすめの勉強順序</h1>
+        <p>ここに内容が入ります。</p>
+        <p class="back-link"><a href="#" data-screen="dashboard-screen">勉強メニューへ戻る</a></p>
+    </main>
+
+    <main id="settings-screen" class="screen">
+        <h1>アカウント設定</h1>
+        <p>ここに内容が入ります。</p>
+        <p class="back-link"><a href="#" data-screen="dashboard-screen">勉強メニューへ戻る</a></p>
+    </main>
+
+    <main id="scale-list-screen" class="screen">
+        <h1>スケール一覧</h1>
+        <p>ここに内容が入ります。</p>
+        <p class="back-link"><a href="#" data-screen="scales-screen">スケール画面へ戻る</a></p>
+    </main>
+
+    <main id="scale-practice-screen" class="screen">
+        <h1>練習問題</h1>
+        <p>ここに内容が入ります。</p>
+        <p class="back-link"><a href="#" data-screen="scales-screen">スケール画面へ戻る</a></p>
+    </main>
+    
+    <main id="chord-list-screen" class="screen">
+        <h1>コード一覧</h1>
+        <p>ここに内容が入ります。</p>
+        <p class="back-link"><a href="#" data-screen="chords-screen">コード画面へ戻る</a></p>
+    </main>
+
+    <main id="chord-practice-screen" class="screen">
+        <h1>練習問題</h1>
+        <p>ここに内容が入ります。</p>
+        <p class="back-link"><a href="#" data-screen="chords-screen">コード画面へ戻る</a></p>
+    </main>
+    
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
