@@ -6,7 +6,9 @@
     <title>jazz</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-<body class="no-menu"> <div id="menu-container">
+<body class="no-menu">
+
+    <div id="menu-container">
         <button id="menu-toggle-button">メニュー</button>
         <nav id="main-menu" class="hidden">
             <ul class="menu-list">
@@ -101,7 +103,7 @@
         </div>
         <p class="back-link"><a href="#" data-screen="common-password-screen">ログアウト</a></p>
     </main>
-    
+
     <main id="scales-screen" class="screen">
         <h1>スケール</h1>
         <p class="subtitle">練習メニュー</p>
@@ -121,7 +123,36 @@
         </div>
         <p class="back-link"><a href="#" data-screen="dashboard-screen">勉強メニューへ戻る</a></p>
     </main>
-    
+
+    <main id="chord-list-screen" class="screen">
+        <h1>コード一覧</h1>
+        <p class="subtitle">種類を選んでください</p>
+        <div class="menu-items">
+            <button class="menu-item-button" data-screen="major7-chord-screen">メジャーセブンス</button>
+            <button class="menu-item-button" data-screen="minor7-chord-screen">マイナーセブンス</button>
+            <button class="menu-item-button" data-screen="7th-chord-screen">セブンス</button>
+        </div>
+        <p class="back-link"><a href="#" data-screen="chords-screen">コード画面へ戻る</a></p>
+    </main>
+
+    <main id="major7-chord-screen" class="screen">
+        <h1>メジャーセブンス</h1>
+        <div id="major7-chords-container">
+            </div>
+        <p class="back-link"><a href="#" data-screen="chord-list-screen">コード一覧へ戻る</a></p>
+    </main>
+
+    <main id="minor7-chord-screen" class="screen">
+        <h1>マイナーセブンス</h1>
+        <p>ここに内容が入ります。</p>
+        <p class="back-link"><a href="#" data-screen="chord-list-screen">コード一覧へ戻る</a></p>
+    </main>
+    <main id="7th-chord-screen" class="screen">
+        <h1>セブンス</h1>
+        <p>ここに内容が入ります。</p>
+        <p class="back-link"><a href="#" data-screen="chord-list-screen">コード一覧へ戻る</a></p>
+    </main>
+
     <main id="study-order-screen" class="screen">
         <h1>おすすめの勉強順序</h1>
         <p>ここに内容が入ります。</p>
@@ -146,12 +177,6 @@
         <p class="back-link"><a href="#" data-screen="scales-screen">スケール画面へ戻る</a></p>
     </main>
     
-    <main id="chord-list-screen" class="screen">
-        <h1>コード一覧</h1>
-        <p>ここに内容が入ります。</p>
-        <p class="back-link"><a href="#" data-screen="chords-screen">コード画面へ戻る</a></p>
-    </main>
-
     <main id="chord-practice-screen" class="screen">
         <h1>練習問題</h1>
         <p>ここに内容が入ります。</p>

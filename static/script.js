@@ -13,7 +13,10 @@ document.addEventListener('DOMContentLoaded', () => {
         scaleListScreen: document.getElementById('scale-list-screen'),
         scalePracticeScreen: document.getElementById('scale-practice-screen'),
         chordListScreen: document.getElementById('chord-list-screen'),
-        chordPracticeScreen: document.getElementById('chord-practice-screen')
+        chordPracticeScreen: document.getElementById('chord-practice-screen'),
+        major7ChordScreen: document.getElementById('major7-chord-screen'),
+        minor7ChordScreen: document.getElementById('minor7-chord-screen'),
+        seventhChordScreen: document.getElementById('7th-chord-screen')
     };
 
     // フォームとボタンの取得
@@ -32,6 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const mainScreenButtons = document.querySelectorAll('#dashboard-screen .menu-item-button');
     const scalesScreenButtons = document.querySelectorAll('#scales-screen .menu-item-button');
     const chordsScreenButtons = document.querySelectorAll('#chords-screen .menu-item-button');
+    const chordListScreenButtons = document.querySelectorAll('#chord-list-screen .menu-item-button');
     const body = document.body;
 
     // 画面切り替え関数
@@ -78,6 +82,57 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // ピアノ鍵盤の音名データ
+    const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+
+    // ピアノ鍵盤を描画する関数
+    function drawPianoKeyboard(containerElement, rootNote, interval) {
+        containerElement.innerHTML = '';
+        
+        const rootNoteIndex = noteNames.indexOf(rootNote);
+        const chordNotes = interval.map(i => (rootNoteIndex + i) % 12);
+        
+        // Cの鍵盤から左右に3半音ずつ広げた表示範囲を定義
+        const totalKeys = 18; // Cから1オクターブと3半音上、およびCから3半音下
+        const cNoteIndex = noteNames.indexOf('C');
+        const startNoteIndex = (cNoteIndex - 3 + 12) % 12;
+
+        const keyboardContent = document.createElement('div');
+        keyboardContent.className = 'piano-keyboard-content';
+        
+        // 水平スライドの計算
+        const slideOffset = (rootNoteIndex - cNoteIndex) * 10; // 1半音あたり10pxのずれ
+        keyboardContent.style.left = `${-slideOffset}px`;
+
+        for (let i = 0; i < totalKeys; i++) {
+            const currentNoteIndex = (startNoteIndex + i) % 12;
+            const isBlackKey = [1, 3, 6, 8, 10].includes(currentNoteIndex);
+
+            const key = document.createElement('div');
+            key.className = isBlackKey ? 'black-key' : 'white-key';
+            
+            // 赤い丸をつける
+            if (chordNotes.includes(currentNoteIndex)) {
+                const noteMark = document.createElement('div');
+                noteMark.className = 'note-mark';
+                key.appendChild(noteMark);
+            }
+            
+            // 黒鍵の水平位置を調整
+            if (isBlackKey) {
+                if (currentNoteIndex === 1) key.style.left = `${30 * Math.floor(i / 12) + 20}px`;
+                if (currentNoteIndex === 3) key.style.left = `${30 * Math.floor(i / 12) + 50}px`;
+                if (currentNoteIndex === 6) key.style.left = `${30 * Math.floor(i / 12) + 110}px`;
+                if (currentNoteIndex === 8) key.style.left = `${30 * Math.floor(i / 12) + 140}px`;
+                if (currentNoteIndex === 10) key.style.left = `${30 * Math.floor(i / 12) + 170}px`;
+            }
+            
+            keyboardContent.appendChild(key);
+        }
+        
+        containerElement.appendChild(keyboardContent);
+    }
+    
     // 自動ログアウトのタイマー設定 (5分)
     let logoutTimer;
     const inactivityTimeout = 5 * 60 * 1000; 
@@ -228,6 +283,32 @@ document.addEventListener('DOMContentLoaded', () => {
         button.addEventListener('click', (e) => {
             const targetScreenId = e.target.dataset.screen;
             showScreen(targetScreenId);
+        });
+    });
+
+    // コード一覧画面のボタンクリック処理
+    chordListScreenButtons.forEach(button => {
+        button.addEventListener('click', (e) => {
+            const targetScreenId = e.target.dataset.screen;
+            showScreen(targetScreenId);
+            
+            // メジャーセブンス画面に遷移したときに鍵盤を描画
+            if (targetScreenId === 'major7-chord-screen') {
+                const rootNotes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+                const major7Interval = [0, 4, 7, 11]; // ルート, 長3度, 完全5度, 長7度
+                
+                const container = document.getElementById('major7-chords-container');
+                container.innerHTML = '';
+                
+                rootNotes.forEach(note => {
+                    const keyboardWrapper = document.createElement('div');
+                    keyboardWrapper.className = 'piano-keyboard-wrapper';
+                    keyboardWrapper.innerHTML = `<h3>${note}メジャーセブンス</h3>`;
+                    
+                    drawPianoKeyboard(keyboardWrapper, note, major7Interval);
+                    container.appendChild(keyboardWrapper);
+                });
+            }
         });
     });
     
