@@ -37,6 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const chordsScreenButtons = document.querySelectorAll('#chords-screen .menu-item-button');
     const chordListScreenButtons = document.querySelectorAll('#chord-list-screen .menu-item-button');
     const body = document.body;
+    const wrongAnswersButton = document.getElementById('wrong-answers-button');
 
     // 画面切り替え関数
     function showScreen(screenId) {
@@ -204,8 +205,11 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             const targetScreenId = button.dataset.screen;
             if (targetScreenId === 'logout') {
-                showScreen('common-password-screen');
-                alert('ログアウトしました。');
+                fetch('/logout', { method: 'POST' })
+                    .then(() => {
+                        showScreen('common-password-screen');
+                        alert('ログアウトしました。');
+                    })
             } else {
                 showScreen(targetScreenId);
             }
@@ -230,6 +234,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (result === 'ログイン成功！') {
                 showScreen('dashboard-screen');
                 resetLogoutTimer();
+                updateScoreDisplay();
             }
         } catch (error) {
             alert('通信エラーが発生しました。もう一度お試しください。');
@@ -423,17 +428,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const allRootNotes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
     const naturalNotes = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
-    const flatNoteAliases = {
-        'C#': 'D♭',
-        'D#': 'E♭',
-        'F#': 'G♭',
-        'G#': 'A♭',
-        'A#': 'B♭',
-        'F': 'E#',
-        'C': 'B#'
-    };
 
-    // 新しい異名同音のマップ（双方向）
+    // 異名同音のマップ（双方向）
     const enharmonicMap = {
         'C#': 'D♭', 'D♭': 'C#',
         'D#': 'E♭', 'E♭': 'D#',
@@ -447,7 +443,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     let currentQuestion = {};
-    let score = { correct: 0, total: 0 };
 
     // ユーザーの選択を保持する変数
     let selectedRoot = '';
@@ -535,7 +530,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // 新しい問題を出題する関数
-    function generateNewQuestion() {
+    function generateNewQuestion(fromWrongAnswers = false) {
         // ユーザー選択をリセット
         selectedRoot = '';
         selectedAccidental = '';
@@ -553,11 +548,45 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.quiz-radio').forEach(radio => {
             radio.checked = false;
         });
-        document.querySelectorAll('.quiz-button-group label').forEach(label => {
-            label.classList.remove('selected'); // スタイルもリセット
-        });
 
+        // 間違えた問題からの出題か、ランダムな出題かを判定
+        if (fromWrongAnswers) {
+            fetch('/get_wrong_questions')
+                .then(response => response.json())
+                .then(wrongQuestions => {
+                    if (wrongQuestions.length > 0) {
+                        const randomWrongQuestion = wrongQuestions[Math.floor(Math.random() * wrongQuestions.length)];
+                        currentQuestion = {
+                            root: randomWrongQuestion.root,
+                            name: randomWrongQuestion.chord_type,
+                            interval: allChords.find(c => c.name === randomWrongQuestion.chord_type).interval
+                        };
+                        const pianoContainer = document.getElementById('piano-quiz-container');
+                        drawPianoKeyboard(pianoContainer, currentQuestion.root, currentQuestion.interval);
+                        // 間違えた問題ボタンを無効化
+                        wrongAnswersButton.disabled = true;
+                    } else {
+                        alert('間違えた問題がありません。ランダムな問題を出題します。');
+                        generateRandomQuestion();
+                        // 間違えた問題ボタンを無効化
+                        wrongAnswersButton.disabled = true;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching wrong questions:', error);
+                    alert('間違えた問題の取得に失敗しました。ランダムな問題を出題します。');
+                    generateRandomQuestion();
+                });
+        } else {
+            generateRandomQuestion();
+        }
 
+        // 成績を更新
+        updateScoreDisplay();
+    }
+
+    // ランダムな問題を出題する関数（既存のロジックを分離）
+    function generateRandomQuestion() {
         const randomRootIndex = Math.floor(Math.random() * allRootNotes.length);
         const randomRoot = allRootNotes[randomRootIndex];
         const randomChordType = allChords[Math.floor(Math.random() * allChords.length)];
@@ -568,11 +597,11 @@ document.addEventListener('DOMContentLoaded', () => {
             interval: randomChordType.interval
         };
 
-        // 鍵盤を描画
         const pianoContainer = document.getElementById('piano-quiz-container');
         drawPianoKeyboard(pianoContainer, currentQuestion.root, currentQuestion.interval);
 
-        updateScoreDisplay();
+        // 次の問題ボタンを押した後は、間違えた問題ボタンを有効化
+        wrongAnswersButton.disabled = false;
     }
 
     // 解答を判定する関数
@@ -600,9 +629,36 @@ document.addEventListener('DOMContentLoaded', () => {
             isCorrect = true;
         }
 
-        score.total++;
+        // 判定結果をサーバーに送信
+        fetch('/save_answer', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                question_root: currentQuestion.root,
+                question_chord_type: currentQuestion.name,
+                user_answer_root: selectedRoot,
+                user_answer_accidental: selectedAccidental,
+                user_answer_chord_type: selectedChordType,
+                is_correct: isCorrect
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    console.error(data.error);
+                    alert(data.error);
+                } else {
+                    console.log(data.message);
+                    updateScoreDisplay(); // 保存後に成績を更新
+                }
+            })
+            .catch(error => {
+                console.error('Error saving answer:', error);
+            });
+
         if (isCorrect) {
-            score.correct++;
             document.getElementById('result-message').textContent = '正解です！🎉';
             document.getElementById('result-message').style.color = 'green';
         } else {
@@ -617,22 +673,26 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('result-message').style.color = 'red';
         }
 
-        updateScoreDisplay();
         document.getElementById('next-question-button').style.display = 'block';
     }
 
     // 成績表示を更新する関数
     function updateScoreDisplay() {
-        document.getElementById('correct-count').textContent = score.correct;
-        document.getElementById('total-count').textContent = score.total;
-        const accuracy = score.total === 0 ? 0 : Math.round((score.correct / score.total) * 100);
-        document.getElementById('accuracy-rate').textContent = accuracy;
+        fetch('/get_user_stats')
+            .then(response => response.json())
+            .then(stats => {
+                document.getElementById('correct-count').textContent = stats.correct_count;
+                document.getElementById('total-count').textContent = stats.total_count;
+                const accuracy = stats.total_count === 0 ? 0 : Math.round((stats.correct_count / stats.total_count) * 100);
+                document.getElementById('accuracy-rate').textContent = accuracy;
+            })
+            .catch(error => {
+                console.error('Error fetching user stats:', error);
+            });
     }
 
     // 選択が完了したかチェックする関数
     function checkSelectionComplete() {
-        // ルート音とコードタイプが選択されているかを確認
-        // 変化記号は「なし」も含むため、selectedAccidentalは必ず何か入る
         if (selectedRoot && selectedChordType) {
             document.getElementById('submit-answer-button').disabled = false;
         } else {
@@ -649,6 +709,13 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('next-question-button').addEventListener('click', () => {
         generateNewQuestion();
     });
+
+    // 間違えた問題ボタンのイベントリスナー
+    if (wrongAnswersButton) {
+        wrongAnswersButton.addEventListener('click', () => {
+            generateNewQuestion(true);
+        });
+    }
 
     // コード練習画面が表示されたときに問題を生成
     const chordPracticeScreen = document.getElementById('chord-practice-screen');
