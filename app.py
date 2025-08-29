@@ -150,6 +150,30 @@ def get_wrong_questions():
     
     return jsonify([{"root": q[0], "chord_type": q[1]} for q in unique_wrong_questions])
 
+# 間違えた問題を削除するAPI (追加)
+@app.route('/remove_wrong_answer', methods=['POST'])
+def remove_wrong_answer():
+    if 'user_id' not in session:
+        return jsonify({"error": "ログインしていません。"}), 401
+    
+    data = request.json
+    question_root = data.get('question_root')
+    question_chord_type = data.get('question_chord_type')
+    
+    conn = get_db_connection()
+    try:
+        # 正解時に、該当する問題を削除
+        conn.execute(
+            "DELETE FROM quiz_results WHERE user_id = ? AND question_root = ? AND question_chord_type = ? AND is_correct = 0",
+            (session['user_id'], question_root, question_chord_type)
+        )
+        conn.commit()
+        return jsonify({"message": "間違えた問題がデータベースから削除されました。"}), 200
+    except sqlite3.Error as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        conn.close()
+
 if __name__ == '__main__':
     init_db()
     app.run(debug=True)

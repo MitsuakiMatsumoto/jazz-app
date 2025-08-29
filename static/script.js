@@ -37,7 +37,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const chordsScreenButtons = document.querySelectorAll('#chords-screen .menu-item-button');
     const chordListScreenButtons = document.querySelectorAll('#chord-list-screen .menu-item-button');
     const body = document.body;
-    const wrongAnswersButton = document.getElementById('wrong-answers-button');
 
     // 画面切り替え関数
     function showScreen(screenId) {
@@ -205,11 +204,8 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             const targetScreenId = button.dataset.screen;
             if (targetScreenId === 'logout') {
-                fetch('/logout', { method: 'POST' })
-                    .then(() => {
-                        showScreen('common-password-screen');
-                        alert('ログアウトしました。');
-                    })
+                showScreen('common-password-screen');
+                alert('ログアウトしました。');
             } else {
                 showScreen(targetScreenId);
             }
@@ -549,6 +545,8 @@ document.addEventListener('DOMContentLoaded', () => {
             radio.checked = false;
         });
 
+        const wrongAnswersButton = document.getElementById('wrong-answers-button');
+
         // 間違えた問題からの出題か、ランダムな出題かを判定
         if (fromWrongAnswers) {
             fetch('/get_wrong_questions')
@@ -563,14 +561,12 @@ document.addEventListener('DOMContentLoaded', () => {
                         };
                         const pianoContainer = document.getElementById('piano-quiz-container');
                         drawPianoKeyboard(pianoContainer, currentQuestion.root, currentQuestion.interval);
-                        // 間違えた問題ボタンを無効化
-                        wrongAnswersButton.disabled = true;
                     } else {
                         alert('間違えた問題がありません。ランダムな問題を出題します。');
                         generateRandomQuestion();
-                        // 間違えた問題ボタンを無効化
-                        wrongAnswersButton.disabled = true;
                     }
+                    // 間違えた問題ボタンを有効化
+                    wrongAnswersButton.disabled = false;
                 })
                 .catch(error => {
                     console.error('Error fetching wrong questions:', error);
@@ -579,6 +575,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
         } else {
             generateRandomQuestion();
+            wrongAnswersButton.disabled = false;
         }
 
         // 成績を更新
@@ -599,9 +596,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const pianoContainer = document.getElementById('piano-quiz-container');
         drawPianoKeyboard(pianoContainer, currentQuestion.root, currentQuestion.interval);
-
-        // 次の問題ボタンを押した後は、間違えた問題ボタンを有効化
-        wrongAnswersButton.disabled = false;
     }
 
     // 解答を判定する関数
@@ -658,6 +652,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.error('Error saving answer:', error);
             });
 
+        // 正解だった場合、間違えた問題リストから削除するAPIを呼び出す
+        if (isCorrect) {
+            fetch('/remove_wrong_answer', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    question_root: currentQuestion.root,
+                    question_chord_type: currentQuestion.name
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data.message);
+                })
+                .catch(error => {
+                    console.error('Error removing wrong answer:', error);
+                });
+        }
+
         if (isCorrect) {
             document.getElementById('result-message').textContent = '正解です！🎉';
             document.getElementById('result-message').style.color = 'green';
@@ -711,6 +726,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // 間違えた問題ボタンのイベントリスナー
+    const wrongAnswersButton = document.getElementById('wrong-answers-button');
     if (wrongAnswersButton) {
         wrongAnswersButton.addEventListener('click', () => {
             generateNewQuestion(true);
