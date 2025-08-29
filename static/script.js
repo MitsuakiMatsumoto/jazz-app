@@ -316,9 +316,17 @@ document.addEventListener('DOMContentLoaded', () => {
             const targetScreenId = e.target.dataset.screen;
             showScreen(targetScreenId);
 
+            const rootNotes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+            const flatNotes = {
+                'C#': 'D♭',
+                'D#': 'E♭',
+                'F#': 'G♭',
+                'G#': 'A♭',
+                'A#': 'B♭'
+            };
+
             // メジャーセブンス画面に遷移したときに鍵盤を描画
             if (targetScreenId === 'major7-chord-screen') {
-                const rootNotes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
                 const major7Interval = [0, 4, 7, 11]; // ルート, 長3度, 完全5度, 長7度
 
                 const container = document.getElementById('major7-chords-container');
@@ -327,7 +335,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 rootNotes.forEach(note => {
                     const keyboardWrapper = document.createElement('div');
                     keyboardWrapper.className = 'piano-keyboard-wrapper';
-                    keyboardWrapper.innerHTML = `<h3>${note}M7 / ${note}△7</h3>`;
+
+                    let displayName = note;
+                    if (flatNotes[note]) {
+                        displayName = `${note}△７ (${flatNotes[note]}△７)`;
+                    } else {
+                        displayName = `${note}△７`;
+                    }
+
+                    keyboardWrapper.innerHTML = `<h3>${displayName}</h3>`;
 
                     const keyboardContainer = document.createElement('div');
                     keyboardContainer.className = 'piano-keyboard-content';
@@ -340,16 +356,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // マイナーセブンス画面に遷移したときに鍵盤を描画
             if (targetScreenId === 'minor7-chord-screen') {
-                const rootNotes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
                 const minor7Interval = [0, 3, 7, 10]; // ルート, 短3度, 完全5度, 短7度
 
-                const container = document.getElementById('minor7-chords-container'); // HTMLのidを確認
+                const container = document.getElementById('minor7-chords-container');
                 container.innerHTML = '';
 
                 rootNotes.forEach(note => {
                     const keyboardWrapper = document.createElement('div');
                     keyboardWrapper.className = 'piano-keyboard-wrapper';
-                    keyboardWrapper.innerHTML = `<h3>${note}マイナーセブンス</h3>`;
+
+                    let displayName = note;
+                    if (flatNotes[note]) {
+                        displayName = `${note}m７ (${flatNotes[note]}m７)`;
+                    } else {
+                        displayName = `${note}m７`;
+                    }
+
+                    keyboardWrapper.innerHTML = `<h3>${displayName}</h3>`;
 
                     const keyboardContainer = document.createElement('div');
                     keyboardContainer.className = 'piano-keyboard-content';
@@ -362,16 +385,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // セブンス画面に遷移したときに鍵盤を描画
             if (targetScreenId === '7th-chord-screen') {
-                const rootNotes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
                 const seventhInterval = [0, 4, 7, 10]; // ルート, 長3度, 完全5度, 短7度
 
-                const container = document.getElementById('7th-chords-container'); // HTMLのidを確認
+                const container = document.getElementById('7th-chords-container');
                 container.innerHTML = '';
 
                 rootNotes.forEach(note => {
                     const keyboardWrapper = document.createElement('div');
                     keyboardWrapper.className = 'piano-keyboard-wrapper';
-                    keyboardWrapper.innerHTML = `<h3>${note}セブンス</h3>`;
+
+                    let displayName = note;
+                    if (flatNotes[note]) {
+                        displayName = `${note}７ (${flatNotes[note]}７)`;
+                    } else {
+                        displayName = `${note}７`;
+                    }
+
+                    keyboardWrapper.innerHTML = `<h3>${displayName}</h3>`;
 
                     const keyboardContainer = document.createElement('div');
                     keyboardContainer.className = 'piano-keyboard-content';
