@@ -121,7 +121,7 @@
         <p class="subtitle">練習メニュー</p>
         <div class="menu-items">
             <button class="menu-item-button" data-screen="chord-list-screen">コード一覧</button>
-            <button class="menu-item-button" data-screen="chord-practice-screen">練習問題</button>
+            <button class="menu-item-button" data-screen="chord-practice-screen">コード問題</button>
         </div>
         <p class="back-link"><a href="#" data-screen="dashboard-screen">勉強メニューへ戻る</a></p>
     </main>
@@ -185,8 +185,22 @@
     </main>
 
     <main id="chord-practice-screen" class="screen">
-        <h1>練習問題</h1>
-        <p>ここに内容が入ります。</p>
+        <h1>コード問題</h1>
+        <div id="quiz-area">
+            <h2 id="question-text">このコードは何？</h2>
+            <div id="piano-quiz-container" class="piano-keyboard-wrapper">
+            </div>
+            <div id="quiz-form"></div>
+
+            <button id="submit-answer-button" disabled>解答する</button>
+            <p id="result-message"></p>
+        </div>
+        <div id="score-area">
+            <h3>あなたの成績</h3>
+            <p>正解数: <span id="correct-count">0</span> / 問題数: <span id="total-count">0</span></p>
+            <p>正解率: <span id="accuracy-rate">0</span>%</p>
+        </div>
+        <button id="next-question-button" style="display: none;">次の問題へ</button>
         <p class="back-link"><a href="#" data-screen="chords-screen">コード画面へ戻る</a></p>
     </main>
 
