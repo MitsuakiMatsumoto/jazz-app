@@ -90,12 +90,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
         const whiteKeyNames = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
 
-        // メジャーセブンスコードのインターバル（ルート, 長3度, 完全5度, 長7度）
-        const major7Interval = [0, 4, 7, 11];
-
         // コードを構成する音の絶対インデックスを計算
         const rootNoteIndex = noteNames.indexOf(rootNote);
-        const chordNotes = major7Interval.map(i => rootNoteIndex + i);
+        const chordNotes = interval.map(i => rootNoteIndex + i);
 
         const keyboardContent = document.createElement('div');
         keyboardContent.className = 'piano-keyboard-content';
@@ -116,9 +113,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (rootNote === 'C#' && noteName === 'F') {
                         // C#メジャーセブンスのE#はFに相当
                         adjustedNoteIndex = noteNames.indexOf('F') + octave * 12;
-                    } else if (rootNote === 'C#' && noteName === 'C') {
-                        // C#メジャーセブンスのB#はCに相当
-                        adjustedNoteIndex = noteNames.indexOf('C') + octave * 12; // 1オクターブ上のC
+                    } else if (rootNote === 'C#' && noteName === 'C' && octave === 1) {
+                        // C#メジャーセブンスのB#は1オクターブ上のCに相当
+                        adjustedNoteIndex = noteNames.indexOf('C') + octave * 12;
                     }
 
                     // コードの構成音に含まれるかチェックし、赤い丸を描画
@@ -330,13 +327,57 @@ document.addEventListener('DOMContentLoaded', () => {
                 rootNotes.forEach(note => {
                     const keyboardWrapper = document.createElement('div');
                     keyboardWrapper.className = 'piano-keyboard-wrapper';
-                    keyboardWrapper.innerHTML = `<h3>${note}メジャーセブンス</h3>`;
+                    keyboardWrapper.innerHTML = `<h3>${note}M7 / ${note}△7</h3>`;
 
                     const keyboardContainer = document.createElement('div');
                     keyboardContainer.className = 'piano-keyboard-content';
                     keyboardWrapper.appendChild(keyboardContainer);
 
                     drawPianoKeyboard(keyboardContainer, note, major7Interval);
+                    container.appendChild(keyboardWrapper);
+                });
+            }
+
+            // マイナーセブンス画面に遷移したときに鍵盤を描画
+            if (targetScreenId === 'minor7-chord-screen') {
+                const rootNotes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+                const minor7Interval = [0, 3, 7, 10]; // ルート, 短3度, 完全5度, 短7度
+
+                const container = document.getElementById('minor7-chords-container'); // HTMLのidを確認
+                container.innerHTML = '';
+
+                rootNotes.forEach(note => {
+                    const keyboardWrapper = document.createElement('div');
+                    keyboardWrapper.className = 'piano-keyboard-wrapper';
+                    keyboardWrapper.innerHTML = `<h3>${note}マイナーセブンス</h3>`;
+
+                    const keyboardContainer = document.createElement('div');
+                    keyboardContainer.className = 'piano-keyboard-content';
+                    keyboardWrapper.appendChild(keyboardContainer);
+
+                    drawPianoKeyboard(keyboardContainer, note, minor7Interval);
+                    container.appendChild(keyboardWrapper);
+                });
+            }
+
+            // セブンス画面に遷移したときに鍵盤を描画
+            if (targetScreenId === '7th-chord-screen') {
+                const rootNotes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+                const seventhInterval = [0, 4, 7, 10]; // ルート, 長3度, 完全5度, 短7度
+
+                const container = document.getElementById('7th-chords-container'); // HTMLのidを確認
+                container.innerHTML = '';
+
+                rootNotes.forEach(note => {
+                    const keyboardWrapper = document.createElement('div');
+                    keyboardWrapper.className = 'piano-keyboard-wrapper';
+                    keyboardWrapper.innerHTML = `<h3>${note}セブンス</h3>`;
+
+                    const keyboardContainer = document.createElement('div');
+                    keyboardContainer.className = 'piano-keyboard-content';
+                    keyboardWrapper.appendChild(keyboardContainer);
+
+                    drawPianoKeyboard(keyboardContainer, note, seventhInterval);
                     container.appendChild(keyboardWrapper);
                 });
             }
