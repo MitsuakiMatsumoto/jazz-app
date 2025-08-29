@@ -80,7 +80,8 @@ body.no-menu #menu-container {
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     text-align: center;
-    width: 300px;
+    width: 450px;
+    /* 300px * 1.5倍 */
 }
 
 .screen.active {
@@ -167,16 +168,12 @@ button:hover {
 /* ピアノ鍵盤のスタイル */
 .piano-keyboard-wrapper {
     margin: 20px auto;
-    width: fit-content;
-    overflow-x: hidden;
-    position: relative;
-    border: 1px solid #333;
-    box-sizing: border-box;
-    padding: 1px; /* 鍵盤の端が見切れないように */
 }
 
 .piano-keyboard-content {
     position: relative;
+    width: 420px;
+    /* 白鍵14個分 (30px * 14) */
     height: 120px;
     margin: 0 auto;
     display: flex;
@@ -203,6 +200,47 @@ button:hover {
     z-index: 1;
 }
 
+/* 黒鍵の位置調整（2オクターブ分） */
+.black-key:nth-child(2) {
+    left: 20px;
+}
+
+.black-key:nth-child(4) {
+    left: 50px;
+}
+
+.black-key:nth-child(7) {
+    left: 110px;
+}
+
+.black-key:nth-child(9) {
+    left: 140px;
+}
+
+.black-key:nth-child(11) {
+    left: 170px;
+}
+
+.black-key:nth-child(14) {
+    left: 230px;
+}
+
+.black-key:nth-child(16) {
+    left: 260px;
+}
+
+.black-key:nth-child(19) {
+    left: 320px;
+}
+
+.black-key:nth-child(21) {
+    left: 350px;
+}
+
+.black-key:nth-child(23) {
+    left: 380px;
+}
+
 /* 鍵盤に印をつけるスタイル */
 .note-mark {
     width: 20px;
@@ -210,8 +248,18 @@ button:hover {
     background-color: red;
     border-radius: 50%;
     position: absolute;
-    top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%);
+    transform: translateX(-50%);
+    /* X軸を中央に */
     z-index: 2;
+}
+
+.white-key .note-mark {
+    bottom: 20px;
+    /* 白鍵の下の方に配置 */
+}
+
+.black-key .note-mark {
+    top: 20px;
+    /* 黒鍵の上の方に配置 */
 }

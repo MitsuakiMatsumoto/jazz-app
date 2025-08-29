@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById(screenId).classList.add('active');
         mainMenu.classList.add('hidden'); // メニューを閉じる
         updateActiveMenu(screenId); // アクティブなメニューをハイライト
-        
+
         // メニューの表示/非表示を切り替え
         if (screenId === 'common-password-screen' || screenId === 'selection-screen' || screenId === 'login-screen' || screenId === 'signup-screen') {
             body.classList.add('no-menu');
@@ -82,60 +82,87 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ピアノ鍵盤の音名データ
-    const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-
     // ピアノ鍵盤を描画する関数
     function drawPianoKeyboard(containerElement, rootNote, interval) {
         containerElement.innerHTML = '';
-        
+
+        // ピアノの音名データとインデックス
+        const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+        const whiteKeyNames = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
+
+        // メジャーセブンスコードのインターバル（ルート, 長3度, 完全5度, 長7度）
+        const major7Interval = [0, 4, 7, 11];
+
+        // コードを構成する音の絶対インデックスを計算
         const rootNoteIndex = noteNames.indexOf(rootNote);
-        const chordNotes = interval.map(i => (rootNoteIndex + i) % 12);
-        
-        // Cの鍵盤から左右に3半音ずつ広げた表示範囲を定義
-        const totalKeys = 18; // Cから1オクターブと3半音上、およびCから3半音下
-        const cNoteIndex = noteNames.indexOf('C');
-        const startNoteIndex = (cNoteIndex - 3 + 12) % 12;
+        const chordNotes = major7Interval.map(i => rootNoteIndex + i);
 
         const keyboardContent = document.createElement('div');
         keyboardContent.className = 'piano-keyboard-content';
-        
-        // 水平スライドの計算
-        const slideOffset = (rootNoteIndex - cNoteIndex) * 10; // 1半音あたり10pxのずれ
-        keyboardContent.style.left = `${-slideOffset}px`;
 
-        for (let i = 0; i < totalKeys; i++) {
-            const currentNoteIndex = (startNoteIndex + i) % 12;
-            const isBlackKey = [1, 3, 6, 8, 10].includes(currentNoteIndex);
+        // 白鍵を描画 (2オクターブ分)
+        for (let octave = 0; octave < 2; octave++) {
+            whiteKeyNames.forEach(noteName => {
+                const key = document.createElement('div');
+                key.className = 'white-key';
 
-            const key = document.createElement('div');
-            key.className = isBlackKey ? 'black-key' : 'white-key';
-            
-            // 赤い丸をつける
-            if (chordNotes.includes(currentNoteIndex)) {
-                const noteMark = document.createElement('div');
-                noteMark.className = 'note-mark';
-                key.appendChild(noteMark);
-            }
-            
-            // 黒鍵の水平位置を調整
-            if (isBlackKey) {
-                if (currentNoteIndex === 1) key.style.left = `${30 * Math.floor(i / 12) + 20}px`;
-                if (currentNoteIndex === 3) key.style.left = `${30 * Math.floor(i / 12) + 50}px`;
-                if (currentNoteIndex === 6) key.style.left = `${30 * Math.floor(i / 12) + 110}px`;
-                if (currentNoteIndex === 8) key.style.left = `${30 * Math.floor(i / 12) + 140}px`;
-                if (currentNoteIndex === 10) key.style.left = `${30 * Math.floor(i / 12) + 170}px`;
-            }
-            
-            keyboardContent.appendChild(key);
+                // 白鍵の絶対的な音程インデックスを計算
+                let absoluteNoteIndex = noteNames.indexOf(noteName) + octave * 12;
+
+                // 1オクターブ内に限定
+                if (absoluteNoteIndex >= rootNoteIndex && absoluteNoteIndex <= rootNoteIndex + 12) {
+                    // E#とB#の変換ルールを適用
+                    let adjustedNoteIndex = absoluteNoteIndex;
+                    if (rootNote === 'C#' && noteName === 'F') {
+                        // C#メジャーセブンスのE#はFに相当
+                        adjustedNoteIndex = noteNames.indexOf('F') + octave * 12;
+                    } else if (rootNote === 'C#' && noteName === 'C') {
+                        // C#メジャーセブンスのB#はCに相当
+                        adjustedNoteIndex = noteNames.indexOf('C') + octave * 12; // 1オクターブ上のC
+                    }
+
+                    // コードの構成音に含まれるかチェックし、赤い丸を描画
+                    if (chordNotes.includes(adjustedNoteIndex)) {
+                        const noteMark = document.createElement('div');
+                        noteMark.className = 'note-mark white-key-mark';
+                        key.appendChild(noteMark);
+                    }
+                }
+                keyboardContent.appendChild(key);
+            });
         }
-        
+
+        // 黒鍵を描画 (2オクターブ分)
+        const blackKeyPositions = [20, 50, 110, 140, 170];
+        const blackKeyNoteIndices = [1, 3, 6, 8, 10]; // C#, D#, F#, G#, A#
+
+        for (let octave = 0; octave < 2; octave++) {
+            blackKeyNoteIndices.forEach((noteIndex, i) => {
+                const key = document.createElement('div');
+                key.className = 'black-key';
+                key.style.left = `${blackKeyPositions[i] + octave * 210}px`;
+
+                const absoluteNoteIndex = noteIndex + octave * 12;
+
+                // 1オクターブ内に限定
+                if (absoluteNoteIndex >= rootNoteIndex && absoluteNoteIndex <= rootNoteIndex + 12) {
+                    // コードの構成音に含まれるかチェックし、赤い丸を描画
+                    if (chordNotes.includes(absoluteNoteIndex)) {
+                        const noteMark = document.createElement('div');
+                        noteMark.className = 'note-mark black-key-mark';
+                        key.appendChild(noteMark);
+                    }
+                }
+                keyboardContent.appendChild(key);
+            });
+        }
+
         containerElement.appendChild(keyboardContent);
     }
-    
+
     // 自動ログアウトのタイマー設定 (5分)
     let logoutTimer;
-    const inactivityTimeout = 5 * 60 * 1000; 
+    const inactivityTimeout = 5 * 60 * 1000;
 
     function resetLogoutTimer() {
         clearTimeout(logoutTimer);
@@ -144,7 +171,7 @@ document.addEventListener('DOMContentLoaded', () => {
             showScreen('common-password-screen');
         }, inactivityTimeout);
     }
-    
+
     // 全てのユーザー操作を監視してタイマーをリセット
     document.addEventListener('mousemove', resetLogoutTimer);
     document.addEventListener('keypress', resetLogoutTimer);
@@ -173,15 +200,15 @@ document.addEventListener('DOMContentLoaded', () => {
     signupSelectButton.addEventListener('click', () => {
         showScreen('signup-screen');
     });
-    
+
     // 戻るボタンとログアウトボタンのクリック処理
     backButtons.forEach(button => {
         button.addEventListener('click', (e) => {
             e.preventDefault();
             const targetScreenId = button.dataset.screen;
             if (targetScreenId === 'logout') {
-                 showScreen('common-password-screen');
-                 alert('ログアウトしました。');
+                showScreen('common-password-screen');
+                alert('ログアウトしました。');
             } else {
                 showScreen(targetScreenId);
             }
@@ -191,7 +218,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ログインフォームの送信処理
     loginForm.addEventListener('submit', async (event) => {
         event.preventDefault();
-        
+
         const formData = new FormData(loginForm);
 
         try {
@@ -202,7 +229,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const result = await response.text();
             alert(result);
-            
+
             if (result === 'ログイン成功！') {
                 showScreen('dashboard-screen');
                 resetLogoutTimer();
@@ -222,7 +249,7 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('パスワードが一致しません。もう一度入力してください。');
             return;
         }
-        
+
         const formData = new FormData(signupForm);
 
         try {
@@ -233,7 +260,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const result = await response.text();
             alert(result);
-            
+
             if (result === '新規登録が完了しました！') {
                 showScreen('login-screen');
             }
@@ -254,8 +281,8 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             const screenId = e.target.dataset.screen;
             if (screenId === 'logout') {
-                 alert('ログアウトしました。');
-                 showScreen('common-password-screen');
+                alert('ログアウトしました。');
+                showScreen('common-password-screen');
             } else {
                 showScreen(screenId);
             }
@@ -269,7 +296,7 @@ document.addEventListener('DOMContentLoaded', () => {
             showScreen(targetScreenId);
         });
     });
-    
+
     // スケール画面のボタンクリック処理
     scalesScreenButtons.forEach(button => {
         button.addEventListener('click', (e) => {
@@ -291,27 +318,31 @@ document.addEventListener('DOMContentLoaded', () => {
         button.addEventListener('click', (e) => {
             const targetScreenId = e.target.dataset.screen;
             showScreen(targetScreenId);
-            
+
             // メジャーセブンス画面に遷移したときに鍵盤を描画
             if (targetScreenId === 'major7-chord-screen') {
                 const rootNotes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
                 const major7Interval = [0, 4, 7, 11]; // ルート, 長3度, 完全5度, 長7度
-                
+
                 const container = document.getElementById('major7-chords-container');
                 container.innerHTML = '';
-                
+
                 rootNotes.forEach(note => {
                     const keyboardWrapper = document.createElement('div');
                     keyboardWrapper.className = 'piano-keyboard-wrapper';
                     keyboardWrapper.innerHTML = `<h3>${note}メジャーセブンス</h3>`;
-                    
-                    drawPianoKeyboard(keyboardWrapper, note, major7Interval);
+
+                    const keyboardContainer = document.createElement('div');
+                    keyboardContainer.className = 'piano-keyboard-content';
+                    keyboardWrapper.appendChild(keyboardContainer);
+
+                    drawPianoKeyboard(keyboardContainer, note, major7Interval);
                     container.appendChild(keyboardWrapper);
                 });
             }
         });
     });
-    
+
     // 初期画面設定
     showScreen('common-password-screen');
 });

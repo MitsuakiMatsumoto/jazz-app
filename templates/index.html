@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>jazz</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
+
 <body class="no-menu">
 
     <div id="menu-container">
@@ -138,7 +140,7 @@
     <main id="major7-chord-screen" class="screen">
         <h1>メジャーセブンス</h1>
         <div id="major7-chords-container">
-            </div>
+        </div>
         <p class="back-link"><a href="#" data-screen="chord-list-screen">コード一覧へ戻る</a></p>
     </main>
 
@@ -176,13 +178,14 @@
         <p>ここに内容が入ります。</p>
         <p class="back-link"><a href="#" data-screen="scales-screen">スケール画面へ戻る</a></p>
     </main>
-    
+
     <main id="chord-practice-screen" class="screen">
         <h1>練習問題</h1>
         <p>ここに内容が入ります。</p>
         <p class="back-link"><a href="#" data-screen="chords-screen">コード画面へ戻る</a></p>
     </main>
-    
+
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
+
 </html>
